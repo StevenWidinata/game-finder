@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Game Finder</title>
+  <meta name="description" content="All your daily web games in one place — search, rate and add games.">
+  <meta name="theme-color" content="#6d4aff">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <div class="title-row">
+        <h1><span class="logo" aria-hidden="true">🎮</span> Game Finder</h1>
+        <button id="addBtn" class="btn primary" type="button">+ Add game</button>
+      </div>
+      <div class="search">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input id="search" type="search" placeholder="Search… try “flag”, “country”, “math”" autocomplete="off" aria-label="Search games">
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav id="categories" class="chips" aria-label="Categories"></nav>
+
+    <div class="toolbar">
+      <div class="tier-filter" id="tierFilter" role="group" aria-label="Filter by fun tier"></div>
+      <label class="sort">
+        <span>Sort</span>
+        <select id="sort">
+          <option value="tier">Fun tier</option>
+          <option value="name">A–Z</option>
+          <option value="category">Category</option>
+        </select>
+      </label>
+    </div>
+
+    <p id="count" class="count" aria-live="polite"></p>
+    <section id="grid" class="grid"></section>
+
+    <div id="empty" class="empty" hidden>
+      <p>No games match “<span id="emptyQuery"></span>”.</p>
+      <button id="emptyAdd" class="btn primary" type="button">+ Add it as a new game</button>
+    </div>
+  </main>
+
+  <footer class="wrap foot">
+    <p>Your games and tiers are saved in this browser. Use Export / Import to move them to another device.</p>
+    <div class="foot-btns">
+      <button id="exportBtn" class="btn" type="button">⬇ Export</button>
+      <label class="btn" tabindex="0">⬆ Import<input id="importInput" type="file" accept="application/json,.json" hidden></label>
+      <button id="resetBtn" class="btn danger-text" type="button">↺ Reset</button>
+    </div>
+  </footer>
+
+  <!-- Add / edit game -->
+  <dialog id="gameDialog" class="sheet">
+    <form id="gameForm" method="dialog">
+      <h2 id="gameDialogTitle">Add a game</h2>
+      <label>Name <input name="name" required maxlength="60" placeholder="e.g. Wordle"></label>
+      <label>Link <input name="url" required inputmode="url" placeholder="e.g. wordle.com"></label>
+      <label>Category
+        <input name="category" list="categoryList" maxlength="30" placeholder="e.g. Words">
+        <datalist id="categoryList"></datalist>
+      </label>
+      <label>What is it? <span class="hint">(helps you find it later)</span>
+        <textarea name="description" rows="2" maxlength="160" placeholder="e.g. Guess the country from its flag"></textarea>
+      </label>
+      <fieldset class="tier-pick">
+        <legend>Fun tier</legend>
+        <div id="formTiers"></div>
+      </fieldset>
+      <div class="dialog-btns">
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Tier picker -->
+  <dialog id="tierDialog" class="sheet small">
+    <h2>How fun is <span id="tierGameName"></span>?</h2>
+    <div id="tierOptions" class="tier-options"></div>
+    <div class="dialog-btns">
+      <button type="button" class="btn" data-close>Cancel</button>
+    </div>
+  </dialog>
+
+  <!-- Confirm -->
+  <dialog id="confirmDialog" class="sheet small">
+    <p id="confirmText"></p>
+    <div class="dialog-btns">
+      <button type="button" class="btn" data-close>Cancel</button>
+      <button type="button" id="confirmOk" class="btn danger">Yes</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="games.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

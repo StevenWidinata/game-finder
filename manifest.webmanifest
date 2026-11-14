@@ -1,0 +1,12 @@
+{
+  "name": "Game Finder",
+  "short_name": "Games",
+  "description": "All your daily web games in one place.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121119",
+  "theme_color": "#6d4aff",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
