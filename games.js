@@ -86,4 +86,62 @@ window.STARTER_GAMES = [
     description: "Guess the League of Legends champion.", tags: ["league of legends", "lol", "champion", "video game"] },
   { id: "angle", name: "Angle", url: "https://www.angle.wtf/", category: "Trivia & More",
     description: "Guess the angle in degrees.", tags: ["degrees", "geometry", "math"] },
+
+  // ---------- More Words ----------
+  { id: "dordle", name: "Dordle", url: "https://zaratustra.itch.io/dordle", category: "Words",
+    description: "Solve 2 Wordles at once in 7 tries.", tags: ["two", "2 words", "wordle"] },
+  { id: "letter-boxed", name: "Letter Boxed", url: "https://www.nytimes.com/puzzles/letter-boxed", category: "Words",
+    description: "Make words from letters around a square, chaining last to first letter.", tags: ["nyt", "square", "chain"] },
+  { id: "wordiply", name: "Wordiply", url: "https://www.wordiply.com/", category: "Words",
+    description: "Make the longest word that contains the given letters.", tags: ["long word", "guardian"] },
+  { id: "weaver", name: "Weaver", url: "https://wordwormdormdork.com/", category: "Words",
+    description: "Change one letter at a time to turn the start word into the end word.", tags: ["ladder", "word ladder", "one letter"] },
+  { id: "redactle", name: "Redactle", url: "https://redactle.net/", category: "Words",
+    description: "Guess the Wikipedia article when all its words are hidden.", tags: ["wikipedia", "hidden", "article"] },
+  { id: "puzzgrid", name: "PuzzGrid", url: "https://puzzgrid.com/", category: "Words",
+    description: "Sort 16 clues into 4 connected groups (like Only Connect).", tags: ["groups", "connections", "only connect"] },
+  { id: "pinpoint", name: "Pinpoint", url: "https://www.linkedin.com/games/pinpoint", category: "Words",
+    description: "Guess the category that links the words, in as few clues as possible.", tags: ["linkedin", "category", "link"] },
+  { id: "crossclimb", name: "Crossclimb", url: "https://www.linkedin.com/games/crossclimb", category: "Words",
+    description: "Trivia word ladder — solve clues and order the words.", tags: ["linkedin", "ladder", "trivia"] },
+
+  // ---------- More Geography ----------
+  { id: "globle-capitals", name: "Globle: Capitals", url: "https://globle-capitals.com/", category: "Geography",
+    description: "Like Globle, but guess the capital city.", tags: ["capital", "city", "globe", "map", "hot cold"] },
+  { id: "statele", name: "Statele", url: "https://statele.teuteuf.fr/", category: "Geography",
+    description: "Guess the US state from its shape.", tags: ["usa", "america", "state", "shape", "map"] },
+  { id: "seterra", name: "Seterra", url: "https://www.geoguessr.com/quiz/seterra", category: "Geography",
+    description: "Map quizzes — click the right country, capital or flag.", tags: ["map quiz", "countries", "learn", "geoguessr"] },
+  { id: "foodguessr", name: "FoodGuessr", url: "https://www.foodguessr.com/", category: "Geography",
+    description: "See a dish, guess where in the world it's from.", tags: ["food", "dish", "cuisine", "location"] },
+
+  // ---------- More Numbers & Logic ----------
+  { id: "sudoku", name: "Sudoku (NYT)", url: "https://www.nytimes.com/puzzles/sudoku", category: "Numbers & Logic",
+    description: "Daily Sudoku in easy, medium and hard.", tags: ["nyt", "numbers", "grid"] },
+  { id: "tiles", name: "Tiles", url: "https://www.nytimes.com/puzzles/tiles", category: "Numbers & Logic",
+    description: "Match tiles that share a pattern to keep your combo going.", tags: ["nyt", "pattern", "match", "relaxing"] },
+  { id: "tango", name: "Tango", url: "https://www.linkedin.com/games/tango", category: "Numbers & Logic",
+    description: "Fill the grid with suns and moons following the rules.", tags: ["linkedin", "sun", "moon", "binary"] },
+  { id: "zip", name: "Zip", url: "https://www.linkedin.com/games/zip", category: "Numbers & Logic",
+    description: "Draw one path through the numbers in order, filling every square.", tags: ["linkedin", "path", "line"] },
+  { id: "murdle", name: "Murdle", url: "https://murdle.com/", category: "Numbers & Logic",
+    description: "Solve a small murder mystery with logic.", tags: ["mystery", "detective", "murder", "deduction"] },
+  { id: "clues-by-sam", name: "Clues by Sam", url: "https://cluesbysam.com/", category: "Numbers & Logic",
+    description: "Use clues to work out who is innocent and who is a criminal.", tags: ["detective", "deduction", "criminal"] },
+  { id: "minesweeper", name: "Minesweeper Online", url: "https://minesweeper.online/", category: "Numbers & Logic",
+    description: "Classic Minesweeper — clear the board without hitting a mine.", tags: ["mines", "classic"] },
+
+  // ---------- More Music & Movies ----------
+  { id: "spotle", name: "Spotle", url: "https://spotle.io/", category: "Music & Movies",
+    description: "Guess the music artist from clues like genre and debut year.", tags: ["artist", "singer", "spotify", "music"] },
+  { id: "box-office-game", name: "Box Office Game", url: "https://boxofficega.me/", category: "Music & Movies",
+    description: "Guess how much money movies made at the box office.", tags: ["film", "money", "box office"] },
+
+  // ---------- More Video Games & Sports ----------
+  { id: "gamedle", name: "Gamedle", url: "https://www.gamedle.wtf/", category: "Trivia & More",
+    description: "Guess the video game from its pictures.", tags: ["video game", "screenshot", "cover"] },
+  { id: "pokedle", name: "Pokédle", url: "https://pokedle.net/", category: "Trivia & More",
+    description: "Guess the Pokémon from clues.", tags: ["pokemon", "video game"] },
+  { id: "who-are-ya", name: "Who Are Ya?", url: "https://playfootball.games/who-are-ya/", category: "Trivia & More",
+    description: "Guess the football (soccer) player.", tags: ["football", "soccer", "player", "sport"] },
 ];

@@ -16,19 +16,38 @@
     <div class="wrap">
       <div class="title-row">
         <h1><span class="logo" aria-hidden="true">🎮</span> Game Finder</h1>
-        <button id="addBtn" class="btn primary" type="button">+ Add game</button>
+        <div class="head-btns">
+          <button id="randomBtn" class="btn square" type="button" title="Pick a random game" aria-label="Pick a random game">🎲</button>
+          <button id="settingsBtn" class="btn square" type="button" title="Settings &amp; sync" aria-label="Settings and sync">⚙️</button>
+          <button id="addBtn" class="btn primary" type="button">+ Add</button>
+        </div>
       </div>
       <div class="search">
         <span class="search-icon" aria-hidden="true">🔍</span>
         <input id="search" type="search" placeholder="Search… try “flag”, “country”, “math”" autocomplete="off" aria-label="Search games">
       </div>
+      <div class="tabs" role="tablist" aria-label="View">
+        <button id="tabList" role="tab" type="button" data-view="list">🎮 Games</button>
+        <button id="tabBoard" role="tab" type="button" data-view="board">🏆 Tier board</button>
+      </div>
     </div>
   </header>
 
   <main class="wrap">
-    <nav id="categories" class="chips" aria-label="Categories"></nav>
+    <div id="sharedBanner" class="banner" hidden>
+      <div>
+        <strong>👀 You're looking at someone's shared tier list.</strong>
+        <p>Your own games and tiers are unchanged.</p>
+      </div>
+      <div class="banner-btns">
+        <button id="sharedCopy" class="btn primary" type="button">Copy these tiers to mine</button>
+        <button id="sharedExit" class="btn" type="button">Back to my games</button>
+      </div>
+    </div>
 
-    <div class="toolbar">
+    <nav id="categories" class="chips" aria-label="Filter"></nav>
+
+    <div class="toolbar" id="listToolbar">
       <div class="tier-filter" id="tierFilter" role="group" aria-label="Filter by fun tier"></div>
       <label class="sort">
         <span>Sort</span>
@@ -41,21 +60,25 @@
     </div>
 
     <p id="count" class="count" aria-live="polite"></p>
+
     <section id="grid" class="grid"></section>
 
+    <section id="board" class="board" hidden>
+      <div class="board-head" id="boardHead">
+        <p class="board-hint">Drag games into a row to rate them. <span class="touch-only">On a phone: press and hold, then drag.</span> Or tap a game to pick its tier.</p>
+        <button id="shareBtn" class="btn" type="button">🔗 Share my tier list</button>
+      </div>
+      <div id="boardRows" class="board-rows"></div>
+    </section>
+
     <div id="empty" class="empty" hidden>
-      <p>No games match “<span id="emptyQuery"></span>”.</p>
+      <p id="emptyText"></p>
       <button id="emptyAdd" class="btn primary" type="button">+ Add it as a new game</button>
     </div>
   </main>
 
   <footer class="wrap foot">
-    <p>Your games and tiers are saved in this browser. Use Export / Import to move them to another device.</p>
-    <div class="foot-btns">
-      <button id="exportBtn" class="btn" type="button">⬇ Export</button>
-      <label class="btn" tabindex="0">⬆ Import<input id="importInput" type="file" accept="application/json,.json" hidden></label>
-      <button id="resetBtn" class="btn danger-text" type="button">↺ Reset</button>
-    </div>
+    <p id="footNote"></p>
   </footer>
 
   <!-- Add / edit game -->
@@ -75,6 +98,7 @@
         <legend>Fun tier</legend>
         <div id="formTiers"></div>
       </fieldset>
+      <label class="check"><input type="checkbox" name="favorite"> ★ Favorite (pin to the top)</label>
       <div class="dialog-btns">
         <button type="button" class="btn" data-close>Cancel</button>
         <button type="submit" class="btn primary">Save</button>
@@ -86,8 +110,80 @@
   <dialog id="tierDialog" class="sheet small">
     <h2>How fun is <span id="tierGameName"></span>?</h2>
     <div id="tierOptions" class="tier-options"></div>
+    <p class="tier-legend" id="tierLegend"></p>
     <div class="dialog-btns">
       <button type="button" class="btn" data-close>Cancel</button>
+    </div>
+  </dialog>
+
+  <!-- Random game -->
+  <dialog id="randomDialog" class="sheet small">
+    <p class="random-kicker">🎲 Why not play…</p>
+    <div id="randomBody" class="random-body"></div>
+    <div class="dialog-btns">
+      <button type="button" class="btn" data-close>Close</button>
+      <button type="button" id="randomAgain" class="btn">🎲 Again</button>
+      <a id="randomPlay" class="btn primary" target="_blank" rel="noopener noreferrer">Play ▶</a>
+    </div>
+  </dialog>
+
+  <!-- Share link -->
+  <dialog id="shareDialog" class="sheet small">
+    <h2>Share your tier list</h2>
+    <p class="muted">Anyone with this link can see your tiers (not your other settings).</p>
+    <input id="shareUrl" class="share-url" readonly aria-label="Share link">
+    <div class="dialog-btns">
+      <button type="button" class="btn" data-close>Close</button>
+      <button type="button" id="shareNative" class="btn" hidden>Share…</button>
+      <button type="button" id="shareCopy" class="btn primary">Copy link</button>
+    </div>
+  </dialog>
+
+  <!-- Settings -->
+  <dialog id="settingsDialog" class="sheet">
+    <h2>Settings</h2>
+
+    <section class="set-section">
+      <h3>🔄 Sync between devices</h3>
+      <p id="syncStatus" class="sync-status"></p>
+      <div id="syncOff">
+        <p class="muted">Use the same games, tiers and favorites on your phone and computer.</p>
+        <button id="syncCreate" class="btn primary" type="button">Turn on sync</button>
+        <div class="or">or, if you already turned it on on another device:</div>
+        <div class="code-row">
+          <input id="syncInput" placeholder="ABCD-EFGH-JKLM-NPQR" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Sync code">
+          <button id="syncConnect" class="btn" type="button">Connect</button>
+        </div>
+      </div>
+      <div id="syncOn" hidden>
+        <p class="muted">Enter this code on your other device (⚙️ → Sync). Keep it private — anyone with it can change your list.</p>
+        <div class="code-row">
+          <code id="syncCode" class="sync-code"></code>
+          <button id="syncCopy" class="btn" type="button">Copy</button>
+        </div>
+        <div class="set-btns">
+          <button id="syncNow" class="btn" type="button">Sync now</button>
+          <button id="syncOffBtn" class="btn danger-text" type="button">Turn off on this device</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="set-section">
+      <h3>🖼️ Display</h3>
+      <label class="check"><input type="checkbox" id="iconsToggle"> Show website icons <span class="hint">(loaded from Google)</span></label>
+    </section>
+
+    <section class="set-section">
+      <h3>💾 Backup</h3>
+      <div class="set-btns">
+        <button id="exportBtn" class="btn" type="button">⬇ Export</button>
+        <label class="btn" tabindex="0">⬆ Import<input id="importInput" type="file" accept="application/json,.json" hidden></label>
+        <button id="resetBtn" class="btn danger-text" type="button">↺ Reset</button>
+      </div>
+    </section>
+
+    <div class="dialog-btns">
+      <button type="button" class="btn primary" data-close>Done</button>
     </div>
   </dialog>
 
@@ -100,7 +196,7 @@
     </div>
   </dialog>
 
-  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="toast" class="toast" role="status" popover="manual" hidden></div>
 
   <script src="games.js"></script>
   <script src="app.js"></script>
