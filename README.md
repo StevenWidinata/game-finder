@@ -11,18 +11,10 @@ A simple, phone-friendly directory of daily web games (Wordle, Krillion, Globle,
 - **✓ Played today:** games tick themselves off when you open them from the site; resets every day.
 - **🎲 Random game:** picks something you haven't played today (better-rated games come up more often).
 - **🔗 Share my tier list:** makes a link that shows your tiers to anyone (read-only; they can copy them).
-- **🔄 Sync between devices** (⚙️ → Sync) — see setup below.
 - **Add / edit / remove** games, **Export / Import / Reset** in ⚙️ Settings.
 
-## One-time setup for sync (free)
-Sync uses a small free database (Upstash Redis) through Vercel:
-1. Vercel dashboard → your **game-finder** project → **Storage** tab.
-2. **Create Database** → **Upstash for Redis** (free plan) → **Connect** it to this project.
-3. **Deployments** → latest deployment → **⋯ → Redeploy** (so the site sees the new database).
-4. On the site: ⚙️ → **Turn on sync**, then type the code shown into ⚙️ on your other device.
-
-Without step 1–3 everything else still works; sync just says it isn't set up yet.
-The sync code acts like a password — anyone with it can see and change your list. Only a hash of it is stored.
+It's a plain static site — no server, no database. Your list is saved in your browser;
+to move it to another device, use ⚙️ → Export, then Import the file there.
 
 ## Add a game for everyone
 Edit `games.js`, add an entry, commit and push — Vercel redeploys automatically.
@@ -30,4 +22,3 @@ Edit `games.js`, add an entry, commit and push — Vercel redeploys automaticall
 ## Files
 - `index.html`, `style.css`, `app.js` — the site
 - `games.js` — the starter game list
-- `api/sync.js` — Vercel serverless function for sync

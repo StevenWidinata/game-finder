@@ -380,22 +380,6 @@ label.check input { width: 20px; height: 20px; accent-color: var(--accent); marg
 .set-section:first-of-type { border-top: none; padding-top: 0; }
 .set-section p { margin: 0 0 10px; }
 .set-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-.sync-status { font-weight: 600; font-size: .9rem; }
-.sync-status[data-status="synced"] { color: var(--ok); }
-.sync-status[data-status="error"], .sync-status[data-status="not-configured"] { color: var(--danger); }
-.or { color: var(--muted); font-size: .85rem; margin: 12px 0 6px; }
-.code-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
-.code-row input { margin-top: 0 !important; font-family: ui-monospace, Consolas, monospace; text-transform: uppercase; letter-spacing: .04em; }
-.sync-code {
-  flex: 1;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--bg);
-  border: 1.5px dashed var(--border);
-  font: 700 1.02rem ui-monospace, Consolas, monospace;
-  letter-spacing: .06em;
-  overflow-wrap: anywhere;
-}
 
 /* ---------- Toast ---------- */
 .toast {

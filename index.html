@@ -18,7 +18,7 @@
         <h1><span class="logo" aria-hidden="true">🎮</span> Game Finder</h1>
         <div class="head-btns">
           <button id="randomBtn" class="btn square" type="button" title="Pick a random game" aria-label="Pick a random game">🎲</button>
-          <button id="settingsBtn" class="btn square" type="button" title="Settings &amp; sync" aria-label="Settings and sync">⚙️</button>
+          <button id="settingsBtn" class="btn square" type="button" title="Settings" aria-label="Settings">⚙️</button>
           <button id="addBtn" class="btn primary" type="button">+ Add</button>
         </div>
       </div>
@@ -144,37 +144,13 @@
     <h2>Settings</h2>
 
     <section class="set-section">
-      <h3>🔄 Sync between devices</h3>
-      <p id="syncStatus" class="sync-status"></p>
-      <div id="syncOff">
-        <p class="muted">Use the same games, tiers and favorites on your phone and computer.</p>
-        <button id="syncCreate" class="btn primary" type="button">Turn on sync</button>
-        <div class="or">or, if you already turned it on on another device:</div>
-        <div class="code-row">
-          <input id="syncInput" placeholder="ABCD-EFGH-JKLM-NPQR" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Sync code">
-          <button id="syncConnect" class="btn" type="button">Connect</button>
-        </div>
-      </div>
-      <div id="syncOn" hidden>
-        <p class="muted">Enter this code on your other device (⚙️ → Sync). Keep it private — anyone with it can change your list.</p>
-        <div class="code-row">
-          <code id="syncCode" class="sync-code"></code>
-          <button id="syncCopy" class="btn" type="button">Copy</button>
-        </div>
-        <div class="set-btns">
-          <button id="syncNow" class="btn" type="button">Sync now</button>
-          <button id="syncOffBtn" class="btn danger-text" type="button">Turn off on this device</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="set-section">
       <h3>🖼️ Display</h3>
       <label class="check"><input type="checkbox" id="iconsToggle"> Show website icons <span class="hint">(loaded from Google)</span></label>
     </section>
 
     <section class="set-section">
-      <h3>💾 Backup</h3>
+      <h3>💾 Backup &amp; move to another device</h3>
+      <p class="muted">Your list is saved in this browser. Export it here, then Import the file on your other device.</p>
       <div class="set-btns">
         <button id="exportBtn" class="btn" type="button">⬇ Export</button>
         <label class="btn" tabindex="0">⬆ Import<input id="importInput" type="file" accept="application/json,.json" hidden></label>

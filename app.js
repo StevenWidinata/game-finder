@@ -2,7 +2,6 @@
   "use strict";
 
   const STORAGE_KEY = "gamefinder.v1";
-  const SYNC_KEY = "gamefinder.sync";
   const TIERS = ["S", "A", "B", "C", "D"];
   const TIER_LABELS = { S: "Best ever", A: "Great", B: "Good", C: "Okay", D: "Meh" };
   const STARTER = (window.STARTER_GAMES || []).map(g => ({ ...g, starter: true }));
@@ -19,10 +18,9 @@
   // favorites: game ids pinned to the top
   // played:    { day: "YYYY-MM-DD", ids: [...] } — resets each day
   // settings:  { icons: boolean }
-  // updatedAt: last change time (used by sync)
   const emptyState = () => ({
     custom: [], overrides: {}, tiers: {}, hidden: [], favorites: [],
-    played: { day: "", ids: [] }, settings: { icons: true }, updatedAt: 0,
+    played: { day: "", ids: [] }, settings: { icons: true },
   });
 
   const isObj = o => o && typeof o === "object" && !Array.isArray(o);
@@ -58,7 +56,6 @@
     base.favorites = strList(s.favorites);
     if (isObj(s.played) && typeof s.played.day === "string") base.played = { day: s.played.day, ids: strList(s.played.ids) };
     if (isObj(s.settings) && typeof s.settings.icons === "boolean") base.settings.icons = s.settings.icons;
-    if (typeof s.updatedAt === "number") base.updatedAt = s.updatedAt;
     return base;
   }
 
@@ -70,11 +67,9 @@
     try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? normalizeState(JSON.parse(raw)) : emptyState(); }
     catch { return emptyState(); }
   }
-  // Every user change goes through commit(): save, sync, redraw.
+  // Every user change goes through commit(): save, then redraw.
   function commit() {
-    state.updatedAt = Date.now();
     writeLocal();
-    sync.schedulePush();
     render();
   }
   function localGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
@@ -136,9 +131,6 @@
     shareDialog: $("#shareDialog"), shareUrl: $("#shareUrl"), shareCopy: $("#shareCopy"), shareNative: $("#shareNative"),
     sharedBanner: $("#sharedBanner"), sharedCopy: $("#sharedCopy"), sharedExit: $("#sharedExit"),
     settingsDialog: $("#settingsDialog"), iconsToggle: $("#iconsToggle"),
-    syncStatus: $("#syncStatus"), syncOff: $("#syncOff"), syncOn: $("#syncOn"), syncCreate: $("#syncCreate"),
-    syncInput: $("#syncInput"), syncConnect: $("#syncConnect"), syncCode: $("#syncCode"), syncCopy: $("#syncCopy"),
-    syncNow: $("#syncNow"), syncOffBtn: $("#syncOffBtn"),
     confirmDialog: $("#confirmDialog"), confirmText: $("#confirmText"), confirmOk: $("#confirmOk"),
     exportBtn: $("#exportBtn"), importInput: $("#importInput"), resetBtn: $("#resetBtn"),
     toast: $("#toast"),
@@ -299,9 +291,7 @@
   }
 
   function renderFoot(games) {
-    const syncOn = sync.isOn();
-    el.footNote.textContent = (syncOn ? `🔄 Sync: ${sync.statusText()} · ` : "Saved in this browser. Turn on sync in ⚙️ to use it on all your devices. · ")
-      + `${games.length} games`;
+    el.footNote.textContent = `Saved in this browser · move it to another device with ⚙️ → Export / Import · ${games.length} games`;
   }
 
   function renderTierFilter() {
@@ -683,167 +673,12 @@
   });
   window.addEventListener("hashchange", applyHash);
 
-  // ---------- Sync between devices ----------
-  const sync = (() => {
-    const CODE_RE = /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/;
-    const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    const TEXT = {
-      off: "Off — your list is only saved on this device.",
-      checking: "Checking…", saving: "Saving…", synced: "✓ Up to date",
-      offline: "Offline — will sync when you're back online.",
-      error: "Couldn't reach the sync server. Try again later.",
-      "not-configured": "Sync isn't set up on the server yet (see the README).",
-    };
-    let code = localGet(SYNC_KEY);
-    if (code && !CODE_RE.test(code)) code = null;
-    let status = code ? "checking" : "off";
-    let timer = 0;
-
-    function newCode() {
-      const bytes = crypto.getRandomValues(new Uint8Array(16));
-      const chars = [...bytes].map(b => ALPHABET[b % 32]).join("");
-      return chars.match(/.{4}/g).join("-");
-    }
-    function cleanCode(s) {
-      const raw = (s || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-      return raw.length === 16 ? raw.match(/.{4}/g).join("-") : raw;
-    }
-    async function api(method, withCode, body, keepalive = false) {
-      const r = await fetch("/api/sync", {
-        method, cache: "no-store", keepalive,
-        headers: { "x-sync-code": withCode, ...(body ? { "Content-Type": "application/json" } : {}) },
-        body: body ? JSON.stringify(body) : undefined,
-      });
-      let data = null;
-      try { data = await r.json(); } catch { /* empty */ }
-      return { status: r.status, data };
-    }
-    const statusFor = st => (st === 200 ? "synced" : st === 501 ? "not-configured" : "error");
-    function setStatus(s) { status = s; renderSyncUI(); renderFoot(allGames()); }
-    function adopt(remote) {
-      state = normalizeState(remote);
-      writeLocal();
-      render();
-    }
-
-    async function pull() {
-      if (!code) return;
-      setStatus("checking");
-      try {
-        const { status: st, data } = await api("GET", code);
-        if (st !== 200) return setStatus(statusFor(st));
-        if (isObj(data) && data.updatedAt > state.updatedAt) { adopt(data); return setStatus("synced"); }
-        if (!isObj(data) || data.updatedAt < state.updatedAt) return push();
-        setStatus("synced");
-      } catch { setStatus("offline"); }
-    }
-    async function push() {
-      if (!code) return;
-      clearTimeout(timer); timer = 0;
-      try {
-        const { status: st, data } = await api("PUT", code, state);
-        if (st === 409 && isObj(data)) { adopt(data); return setStatus("synced"); }
-        setStatus(statusFor(st));
-      } catch { setStatus("offline"); }
-    }
-    function schedulePush() {
-      if (!code) return;
-      clearTimeout(timer);
-      status = "saving";
-      renderSyncUI();
-      timer = setTimeout(push, 1200);
-    }
-    // Send any pending change right away when the page is being hidden/closed.
-    function flush() {
-      if (!code || !timer) return;
-      clearTimeout(timer); timer = 0;
-      api("PUT", code, state, true).catch(() => {});
-    }
-
-    async function turnOn() {
-      const c = newCode();
-      setStatus("saving");
-      try {
-        if (!state.updatedAt) state.updatedAt = Date.now();
-        writeLocal();
-        const { status: st } = await api("PUT", c, state);
-        if (st !== 200) {
-          status = "off";
-          renderSyncUI(st);
-          toast(st === 501 ? TEXT["not-configured"] : "Couldn't turn on sync — try again later.");
-          return;
-        }
-        code = c; localSet(SYNC_KEY, c);
-        setStatus("synced");
-        toast("Sync is on! Enter the code on your other device.");
-      } catch {
-        status = "off";
-        renderSyncUI();
-        toast("You're offline — try again later.");
-      }
-    }
-    async function connect(input) {
-      const c = cleanCode(input);
-      if (!CODE_RE.test(c)) { toast("That code doesn't look right — it's 16 letters/numbers."); return; }
-      try {
-        const { status: st, data } = await api("GET", c);
-        if (st === 501) { toast(TEXT["not-configured"]); return; }
-        if (st !== 200) { toast(TEXT.error); return; }
-        if (!isObj(data)) { toast("No synced list found for that code — check for typos."); return; }
-        const go = () => {
-          code = c; localSet(SYNC_KEY, c);
-          adopt(data);
-          setStatus("synced");
-          el.syncInput.value = "";
-          toast("Connected! This device now uses your synced list.");
-        };
-        if (state.updatedAt) confirmBox("Replace this device's games and tiers with your synced list?", "Replace", go);
-        else go();
-      } catch { toast("You're offline — try again later."); }
-    }
-    function turnOff() {
-      code = null; localSet(SYNC_KEY, null);
-      clearTimeout(timer); timer = 0;
-      setStatus("off");
-      toast("Sync turned off on this device. Your list stays here.");
-    }
-
-    return {
-      isOn: () => !!code, code: () => code, statusText: () => TEXT[status] || status, status: () => status,
-      pull, push, schedulePush, flush, turnOn, connect, turnOff,
-    };
-  })();
-
-  function renderSyncUI(failedStatus) {
-    const on = sync.isOn();
-    el.syncOff.hidden = on;
-    el.syncOn.hidden = !on;
-    el.syncCode.textContent = sync.code() || "";
-    el.syncStatus.textContent = failedStatus === 501 ? "Sync isn't set up on the server yet (see the README)."
-      : failedStatus ? "Couldn't turn on sync — try again later."
-      : sync.statusText();
-    el.syncStatus.dataset.status = sync.status();
-  }
-
-  el.syncCreate.addEventListener("click", () => sync.turnOn());
-  el.syncConnect.addEventListener("click", () => sync.connect(el.syncInput.value));
-  el.syncInput.addEventListener("keydown", e => { if (e.key === "Enter") sync.connect(el.syncInput.value); });
-  el.syncCopy.addEventListener("click", async () => {
-    try { await navigator.clipboard.writeText(sync.code()); toast("Code copied!"); } catch { toast("Copy the code by hand."); }
-  });
-  el.syncNow.addEventListener("click", () => sync.pull());
-  el.syncOffBtn.addEventListener("click", () => sync.turnOff());
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") sync.flush();
-    else { sync.pull(); render(); } // also refreshes "played today" after midnight
-  });
-  window.addEventListener("pagehide", () => sync.flush());
-  window.addEventListener("online", () => sync.pull());
+  // Coming back to the tab (e.g. the next morning) refreshes "played today".
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") render(); });
 
   // ---------- Settings ----------
   el.settingsBtn.addEventListener("click", () => {
     el.iconsToggle.checked = state.settings.icons;
-    renderSyncUI();
     el.settingsDialog.showModal();
   });
   el.iconsToggle.addEventListener("change", () => { state.settings.icons = el.iconsToggle.checked; commit(); });
@@ -953,5 +788,4 @@
   });
 
   applyHash();
-  sync.pull();
 })();
